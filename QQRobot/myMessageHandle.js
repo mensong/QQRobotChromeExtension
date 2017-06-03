@@ -37,8 +37,6 @@ function myMessageHandle(bot, msg)
 {	
 	var targetInfo = bot.getCurrentChatTargetInfo();
 	console.info(targetInfo['title']);
-	if (targetInfo['title'] == "Tumax深圳合作群")
-		return ;
 	
 	tulingReply(msg['message'], msg['fromUserId']);
 }
