@@ -1,7 +1,7 @@
-/* 注：这个文件在manifest.json中需要放在contentScript.js前面 */
+/* 消息处理过程 注：这个文件在manifest.json中需要放在contentScript.js前面 */
 
 //图灵机器人回复
-var tulingKey = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";//your tuling robot key
+var tulingKey = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";//your tuling robot key
 function tulingReply(msg, userid)
 {
 	qqBot.lock();

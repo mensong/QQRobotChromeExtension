@@ -1,3 +1,5 @@
+/* background.js 每个浏览器进程调用一次 */
+
 function objectToString(obj) 
 {
 	var propertList = "";

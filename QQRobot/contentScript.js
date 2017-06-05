@@ -1,20 +1,23 @@
-/*  */
+/* contentScript.js 每个有效的tab都会调用一次 */
+
+var include = function(path){
+	var a = document.createElement("script");
+	a.type = "text/javascript";
+	a.src = path;
+	var head = document.getElementsByTagName("head")[0];
+	if (head && a)
+	{
+		head.appendChild(a);
+		return true;
+	}
+	return false;
+};
 
 function QQRobot()
 {
 	this._switch = true;
-
-	this.include = function(path){
-		var a = document.createElement("script");
-		a.type = "text/javascript";
-		a.src = path;
-		var head = document.getElementsByTagName("head")[0];
-		if (head && a)
-		{
-			head.appendChild(a);
-			return true;
-		}
-		return false;
+	this.changeSwitch = function(){
+		this._switch = !this._switch;
 	};
 
 	/** 锁 **/
@@ -211,10 +214,12 @@ function main()
 	qqBot.messageHandle = registerMessageHandle();
 
 	chrome.runtime.onMessage.addListener(function(request, sender, senderResponse){
-		qqBot._switch = !qqBot._switch;
+		qqBot.changeSwitch();
 		console.log("QQ robot status: " + qqBot._switch);
 		alert("QQ robot status: " + qqBot._switch);
 		senderResponse({status:qqBot._switch});
+		if (qqBot._switch)
+			window.open(document.URL, "_self");
 	});
 }
 main();

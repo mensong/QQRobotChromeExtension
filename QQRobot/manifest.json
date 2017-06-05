@@ -1,18 +1,24 @@
 {
   "name": "QQ Robot",
+  
   "version": "1.0",
+  
   "permissions":["tabs","<all_urls>"],
+  
   "browser_action": {
 	"default_icon": "qq_enable.png"
   },
+  
   "background": {
 	"scripts": ["background.js"]
   },
+  
   "content_scripts": [
 	{
 	  "matches": ["*://w.qq.com/*"],
 	  "js" : ["jquery-3.2.1.min.js", "map.js", "myMessageHandle.js", "contentScript.js"]
 	}
   ],
+  
   "manifest_version": 2
 }
