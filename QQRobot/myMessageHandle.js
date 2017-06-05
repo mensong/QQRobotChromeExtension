@@ -2,9 +2,9 @@
 
 //图灵机器人回复
 var tulingKey = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";//your tuling robot key
-function tulingReply(msg, userid)
+function tulingReply(bot, msg, userid)
 {
-	qqBot.lock();
+	bot.lock();
 	
 	$.ajax({
         type: "post",
@@ -19,18 +19,20 @@ function tulingReply(msg, userid)
             //console.log(data);
 			if (data['code'] == 100000)
 			{
-				qqBot.sendMessage(data['text']);
+				bot.sendMessage(data['text']);
 			}
 			
-			qqBot.unLock();
+			bot.unLock();
         },
         error:function (XMLHttpRequest, textStatus, errorThrown) {      
             //alert("请求失败！");
 			console.log("error:" + textStatus);
-			qqBot.unLock();
+			bot.unLock();
         }
      });
 }
+
+var tuling_running = true;
 
 //轮询消息句柄
 function myMessageHandle(bot, msg)
@@ -38,7 +40,21 @@ function myMessageHandle(bot, msg)
 	var targetInfo = bot.getCurrentChatTargetInfo();
 	console.info(targetInfo['title']);
 	
-	tulingReply(msg['message'], msg['fromUserId']);
+	if (msg['message'] == "robot:stop")
+	{
+		tuling_running = false;
+		bot.sendMessage("Robot:stopped");
+		return ;
+	}
+	else if (msg['message'] == "robot:start")
+	{
+		tuling_running = true;
+		bot.sendMessage("Robot:started");
+		return ;
+	}
+	
+	if (tuling_running)
+		tulingReply(bot, msg['message'], msg['fromUserId']);
 }
 
 //注册
