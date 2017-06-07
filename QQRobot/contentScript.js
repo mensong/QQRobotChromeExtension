@@ -40,6 +40,13 @@ function QQRobot()
 		var root = document.getElementById("panelBody-5");
 		if (!root)
 			return [];
+		//是否是群消息
+		var isGroup = 0;
+		var groupType = document.getElementById('pannelMenuList-5');
+		if (groupType)
+		{
+			isGroup = (groupType.getElementsByClassName("viewMembers").length > 0) ? 1 : 0;
+		}
 		
 		var messages = [];
 		var messageNodes = root.children;
@@ -58,6 +65,7 @@ function QQRobot()
 			else if (className == "chat_content_group buddy")
 			{
 				msgInfo['type'] = 0;
+				msgInfo['group'] = isGroup;
 				msgInfo['fromUserId'] = messageNode.getAttribute('_sender_uin');
 				msgInfo['fromUserName'] = messageNode.getElementsByClassName('chat_nick')[0].textContent;
 				msgInfo['message'] = messageNode.getElementsByClassName('chat_content')[0].textContent;
@@ -65,6 +73,7 @@ function QQRobot()
 			else if (className == "chat_content_group self")
 			{
 				msgInfo['type'] = 1;
+				msgInfo['group'] = isGroup;
 				msgInfo['fromUserId'] = messageNode.getAttribute('_sender_uin');
 				msgInfo['fromUserName'] = messageNode.getElementsByClassName('chat_nick')[0].textContent;
 				msgInfo['message'] = messageNode.getElementsByClassName('chat_content')[0].textContent;

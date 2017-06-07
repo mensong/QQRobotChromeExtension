@@ -2,7 +2,7 @@
 
 //图灵机器人回复
 var tulingKey = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";//your tuling robot key
-function tulingReply(bot, msg, userid)
+function tulingReply(bot, msg)
 {
 	bot.lock();
 	
@@ -10,7 +10,7 @@ function tulingReply(bot, msg, userid)
         type: "post",
         url: "http://www.tuling123.com/openapi/api",
 //      data: "para="+para,  此处data可以为 a=1&b=2类型的字符串 或 json数据。
-        data: {"key":tulingKey, 'info':msg, 'userid':userid},
+        data: {"key":tulingKey, 'info':msg['message'], 'userid':msg['fromUserId']},
         cache: false,
         async : false,
         dataType: "json",
@@ -19,7 +19,10 @@ function tulingReply(bot, msg, userid)
             //console.log(data);
 			if (data['code'] == 100000)
 			{
-				bot.sendMessage(data['text']);
+				if (msg['group'] == 0)
+					bot.sendMessage(data['text']);
+				else
+					bot.sendMessage("Robot:" + data['text']);
 			}
 			
 			bot.unLock();
@@ -32,7 +35,15 @@ function tulingReply(bot, msg, userid)
      });
 }
 
-var tuling_running = true;
+//持久化存储图灵机器人的运行状态
+var localStorage = {};
+if(window.localStorage)
+	localStorage = window.localStorage;
+if (localStorage['tuling_running'] == undefined || 
+	localStorage['tuling_running'] == null)
+{
+	localStorage['tuling_running'] = "1";
+}
 
 //轮询消息句柄
 function myMessageHandle(bot, msg)
@@ -42,19 +53,19 @@ function myMessageHandle(bot, msg)
 	
 	if (msg['message'] == "robot:stop")
 	{
-		tuling_running = false;
+		localStorage['tuling_running'] = "0";
 		bot.sendMessage("Robot:stopped");
 		return ;
 	}
 	else if (msg['message'] == "robot:start")
 	{
-		tuling_running = true;
+		localStorage['tuling_running'] = "1";
 		bot.sendMessage("Robot:started");
 		return ;
 	}
 	
-	if (tuling_running)
-		tulingReply(bot, msg['message'], msg['fromUserId']);
+	if (localStorage['tuling_running']=="1" && msg['message'].indexOf("Robot:") < 0)
+		tulingReply(bot, msg);
 }
 
 //注册
