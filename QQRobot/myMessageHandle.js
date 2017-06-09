@@ -163,6 +163,10 @@ function getStatusStr()
 		statusMsg += "已开启";
 	else
 		statusMsg += "已关闭";
+	if (localStorage['robot'] == "tuling")
+		statusMsg += "\n图灵机器人在线";
+	else
+		statusMsg += "\n茉莉机器人在线";
 	return statusMsg;
 }
 
