@@ -3,8 +3,6 @@ A QQ robot chrome extension
 
 基于web qq使用了一种比较简单的方式实现了QQ机器人，过程中没有使用复杂的web接口，仅仅使用了html dom操作实现的。
 
-本例对接了图灵机器人自动问答，消息接口实现在myMessageHandle.js中，请在此文件中替换你的图灵key.
-
 
 特色：
 
@@ -12,7 +10,7 @@ A QQ robot chrome extension
   
   2、纯粹的html dom操作让一切一目了然；
   
-  3、部署简单，只需一个浏览器（chrome内核的）就可以超快速部署。
+  3、部署简单，只需一个浏览器（支持chrome插件的浏览器）就可以超快速部署。
 
 
 安装：
@@ -23,3 +21,18 @@ A QQ robot chrome extension
   
   3、打开“w.qq.com”，使用手机扫码登录即可。
   
+  
+自动问答机器人快速部署：
+
+  1、图灵机器人部署
+  
+     到www.tuling123.com 上申请一个你的机器人，创建机器人后会得到你的ApiKey，把这个ApiKey复制到myMessageHandle.js中对应的位置，重新载入插件即可生效。
+     
+  2、茉莉机器人部署
+  
+     茉莉机器人我使用了公共的API，所以不需要任何配置就可以使用了。
+
+
+注意：登录Web QQ后，有时候会出现会话列表为空的情况，这可能是Web QQ的一个bug，这种情况下是不能收发到QQ消息的，我遇到这种情况后，也没能找到解决办法，后来隔天登录，会话列表又回来了，又好了。
+
+本QQRobotChromeExtension开源项目交流QQ群：13225803
