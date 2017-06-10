@@ -37,7 +37,9 @@ function tulingReply(bot, msg)
 
 //茉莉机器人回复
 //  官网：http://www.itpk.cn
-//  使用了公共api，因此不需要指定apikey
+//  可以使用公共api，因此可以不指定apikey
+var itpkKey = "28f043e2501a28f1c9f54e85df430c3c";
+var itpSecretKey = "gergul";
 function isJSON(str) 
 {
     if (typeof str == 'string')
@@ -54,14 +56,17 @@ function isJSON(str)
 	
 	return false;
 }
-
 function itpkReply(bot, msg)
 {
 	bot.lock();
 	
+	var uri = "http://i.itpk.cn/api.php?question=" + msg['message'];
+	if (itpkKey != "" && itpSecretKey != "")
+		uri += "&api_key=" + itpkKey + "&api_secret=" + itpSecretKey;
+	
 	$.ajax({
         type: "get",
-        url: "http://i.itpk.cn/api.php?question=" + msg['message'],
+        url: uri,
         success: function (data, textStatus, jqXHR)
         {
 			var ret;
@@ -70,7 +75,7 @@ function itpkReply(bot, msg)
 				var j = JSON.parse(data);
 				if (j["type"] == "观音灵签")
 				{
-					ret = "你合十跪拜后求得的签：\n";
+					ret = "你合十跪拜后求得此签：\n";
 					ret += "签号：" + j['number1'];
 					ret += "为【" + j['haohua'] + "】。\n";
 					ret += "签上写着：" + j['qianyu'] + "\n";
@@ -78,7 +83,7 @@ function itpkReply(bot, msg)
 				}
 				else if (j["type"] == "月老灵签")
 				{
-					ret = "你合十跪拜后求得的签：\n";
+					ret = "你合十跪拜后求得此签：\n";
 					ret += "签号：" + j['number1'];
 					ret += "为【" + j['haohua'] + "签】。\n";
 					ret += "签上写着：" + j['shiyi'] + "\n";
@@ -87,7 +92,7 @@ function itpkReply(bot, msg)
 				}
 				else if (j["type"] == "财神爷灵签")
 				{
-					ret = "你合十跪拜后求得的签：\n";
+					ret = "你合十跪拜后求得此签：\n";
 					ret += "签号：" + j['number1'];
 					ret += "为【" + j['zhushi'] + "签】。\n";
 					ret += "签上写着：" + j['qianyu'] + "\n";
@@ -106,10 +111,15 @@ function itpkReply(bot, msg)
 					ret += "某事：" + j['moushi'] + "\n";
 					ret += "合伙做生意：" + j['hhzsy'] + "\n";
 				}
+				else if (j["title"] != undefined && j["content"] != undefined)
+				{
+					ret = "笑话：" + j["title"] + "\n";
+					ret += j["content"];
+				}
 			}
 			catch(e)
 			{
-				ret = data;
+				ret = "Robot:" + data;
 			}
 			
             bot.sendLongMessageAndUnlockAfter(ret);
@@ -165,7 +175,7 @@ function getStatusStr()
 		statusMsg += "已关闭";
 	if (localStorage['robot'] == "tuling")
 		statusMsg += "\n图灵机器人在线";
-	else
+	else if (localStorage['robot'] == "itpk")
 		statusMsg += "\n茉莉机器人在线";
 	return statusMsg;
 }
@@ -180,6 +190,17 @@ function isAtMe(bot, msg)
 	return false;
 }
 
+var helpText = "机器人命令\n";
+helpText += "帮助【:help】\n";
+helpText += "开启【:on】\n";
+helpText += "关闭【:off】\n";
+helpText += "开启群【:gon】\n";
+helpText += "关闭群【:goff】\n";
+helpText += "查询状态【:status】\n";
+helpText += "图灵机器人【:tuling】\n";
+helpText += "茉莉机器人【:itpk】\n";
+helpText += "\n机器人源码：https://github.com/gergul/QQRobotChromeExtension";
+
 //轮询消息句柄
 function myMessageHandle(bot, msg)
 {	
@@ -187,52 +208,52 @@ function myMessageHandle(bot, msg)
 	console.info(targetInfo['title']);
 	
 	var cmd = msg['message'].toLowerCase();
-	if (cmd == "robot:help")
+	if (cmd == ":help" || cmd == ":?" || cmd == ":？")
 	{
-		bot.sendMessage(
-		"机器人命令\n帮助：robot:help\n开启：robot:start\n关闭：robot:stop\n开启群：robot:startgroup\n关闭群：robot:stopgroup\n查询状态：robot:status\n图灵机器人：robot:tuling\n茉莉机器人：robot:itpk\n\n机器人源码：https://github.com/gergul/QQRobotChromeExtension"
-		);
+		bot.sendMessage(helpText);
 		return ;
 	}
-	else if (cmd == "robot:stop")
+	else if (cmd == ":off")
 	{
 		localStorage['running'] = "0";
 		bot.sendMessage(getStatusStr());
 		return ;
 	}
-	else if (cmd == "robot:start")
+	else if (cmd == ":on")
 	{
 		localStorage['running'] = "1";
 		bot.sendMessage(getStatusStr());
 		return ;
 	}
-	else if (cmd == "robot:stopgroup")
+	else if (cmd == ":goff")
 	{
 		localStorage['reply_group'] = "0";
 		bot.sendMessage(getStatusStr());
 		return ;
 	}
-	else if (cmd == "robot:startgroup")
+	else if (cmd == ":gon")
 	{
 		localStorage['reply_group'] = "1";
 		bot.sendMessage(getStatusStr());
 		return ;
 	}
-	else if (cmd == "robot:status")
+	else if (cmd == ":status")
 	{
 		bot.sendMessage(getStatusStr());
 		return ;
 	}
-	else if (cmd == "robot:tuling")
+	else if (cmd == ":tuling")
 	{
 		localStorage['robot'] = "tuling";
-		bot.sendMessage("你好，我是图灵机器人。");
+		bot.sendMessage("已切换到图灵机器人\nRobot:你好，我是图灵机器人。");
 		return ;
 	}
-	else if (cmd == "robot:itpk")
+	else if (cmd == ":itpk")
 	{
 		localStorage['robot'] = "itpk";
-		bot.sendMessage("你好，我是茉莉机器人。");
+		var ret = "已切换到茉莉机器人\nRobot:你好，我是茉莉机器人。";
+		ret += "\n我有特别的机器人指令，参见：http://www.itpk.cn/robot.php";
+		bot.sendMessage(ret);
 		return ;
 	}
 	
