@@ -16,7 +16,7 @@ var include = function(path){
 
 
 //class QQRobot
-var globalInstance = null;//在class中使用延时函数setTimeout setInterval需要用到这个全局实例
+var THIS = null;//在class中使用延时函数setTimeout setInterval需要用到这个全局实例
 function QQRobot()
 {
 	this._switch = true;
@@ -135,26 +135,26 @@ function QQRobot()
 	this.splitNum = 200;
 	this.sleep = 2000;
 	this.sendNext = function(){
-		globalInstance.lock();
+		THIS.lock();
 		
-		var sub = globalInstance.txt.substr(globalInstance.sendIndex, globalInstance.splitNum);
+		var sub = THIS.txt.substr(THIS.sendIndex, THIS.splitNum);
 		if (sub != "")
 		{
-			globalInstance.sendMessage(sub);
-			globalInstance.sendIndex += globalInstance.splitNum;
-			setTimeout(globalInstance.sendNext, globalInstance.sleep);
+			THIS.sendMessage(sub);
+			THIS.sendIndex += THIS.splitNum;
+			setTimeout(THIS.sendNext, THIS.sleep);
 		}
 		else
 		{
-			sub = globalInstance.txt.substr(globalInstance.sendIndex, globalInstance.txt.length-globalInstance.sendIndex);
+			sub = THIS.txt.substr(THIS.sendIndex, THIS.txt.length-THIS.sendIndex);
 			if (sub != "")
-				globalInstance.sendMessage(sub);
+				THIS.sendMessage(sub);
 			
-			globalInstance.sendIndex = 0;
-			globalInstance.txt = "";
-			globalInstance.splitNum = 200;
-			globalInstance.sleep = 2000;
-			globalInstance.unLock();
+			THIS.sendIndex = 0;
+			THIS.txt = "";
+			THIS.splitNum = 200;
+			THIS.sleep = 2000;
+			THIS.unLock();
 		}
 	};
 	
@@ -171,6 +171,9 @@ function QQRobot()
 	this.messageHandle = function(bot, msg){
 		console.info(msg);
 	};
+	this.scheduleHandle = function(bot){
+		
+	};
 	
 	//轮询消息
 	this.needRefresh = false;//需要刷新页面
@@ -179,43 +182,46 @@ function QQRobot()
 	this.pollMessageHandle = 0;
 	this.startPollMessage = function() {
 		this.pollMessageHandle = setInterval(function(){
-			if (!globalInstance._switch)
+			if (!THIS._switch)
 				return ;
-			if (globalInstance.isLocked())
+			if (THIS.isLocked())
 				return ;
 			
-			var chatList = globalInstance.getCurrentChatList();
-			if (!chatList[globalInstance.indexChat])
-				globalInstance.indexChat = 0;
+			var chatList = THIS.getCurrentChatList();
+			if (!chatList[THIS.indexChat])
+				THIS.indexChat = 0;
 			
 			
-			if (chatList[globalInstance.indexChat])
+			if (chatList[THIS.indexChat])
 			{
 				do 
 				{
-					//console.info(chatList[globalInstance.indexChat]);
-					chatList[globalInstance.indexChat].click();
+					//console.info(chatList[THIS.indexChat]);
+					chatList[THIS.indexChat].click();
 					
 					//检查是否有新消息
-					var curList = globalInstance.getCurrentMessageList();
-					var targetInfo = globalInstance.getCurrentChatTargetInfo();
-					var lastList = globalInstance.lastMessageList.get(targetInfo['title']);
+					var curList = THIS.getCurrentMessageList();
+					var targetInfo = THIS.getCurrentChatTargetInfo();
+					var lastList = THIS.lastMessageList.get(targetInfo['title']);
 					if (lastList == undefined)
 					{
 						lastList = [];
 					}
-					globalInstance.lastMessageList.put(targetInfo['title'], curList);	
+					THIS.lastMessageList.put(targetInfo['title'], curList);	
 					var newCount = curList.length - lastList.length;
 					
 					//为了保证在当前有消息时不刷新页面，
 					//  检查第一个会话是否有新的消息，有的话暂时不刷新
-					if (0 == globalInstance.indexChat && //第1个会话
+					if (0 == THIS.indexChat && //第1个会话
 						0 == newCount &&  //没有新的消息
-						globalInstance.needRefresh)      //需要刷新
+						THIS.needRefresh)      //需要刷新
 					{
 						window.open(document.URL, "_self");
 						return ;
 					}
+					
+					//时刻进度回调
+					THIS.scheduleHandle(THIS);
 					
 					if (0 == newCount)
 						break;//没有新消息
@@ -225,39 +231,40 @@ function QQRobot()
 						var msg = curList[i];
 						if (msg['type'] == 0)
 						{
-							globalInstance.messageHandle(globalInstance, msg);
+							//消息回调
+							THIS.messageHandle(THIS, msg);
 						}
 					}
 				} while(false);
 				
-				++globalInstance.indexChat;
+				++THIS.indexChat;
 			}
 			else
 			{
-				if (globalInstance.needRefresh)//刷新
+				if (THIS.needRefresh)//刷新
 					window.open(document.URL, "_self");
 			}
 		}, 500);
 	};
-
+	
 	//定时刷新页面，防止登录信息失效
 	this.refreshMinutes = 5;//几分钟刷新一次
 	this.refreshIndex = 0;
 	this.keepAliveHandle = 0;
 	this.startKeepAlive = function() {
-		globalInstance.keepAliveHandle = setInterval(function(){
-			if (globalInstance.refreshIndex < globalInstance.refreshMinutes-1)
+		this.keepAliveHandle = setInterval(function(){
+			if (THIS.refreshIndex < THIS.refreshMinutes-1)
 			{
-				++globalInstance.refreshIndex;
+				++THIS.refreshIndex;
 				return ;
 			}
 			else
-				globalInstance.refreshIndex = 0;
+				THIS.refreshIndex = 0;
 			
-			if (!globalInstance._switch)
+			if (!THIS._switch)
 				return ;
 			
-			globalInstance.needRefresh = true;
+			THIS.needRefresh = true;
 			//window.open(document.URL, "_self");
 		}, 60000);
 	};
@@ -265,16 +272,17 @@ function QQRobot()
 }//end QQRobot class
 
 
-
 var qqBot = new QQRobot();
-globalInstance = qqBot;
+THIS = qqBot;
 function main()
 {
 	console.log("contentscript injected!");
-	qqBot.startPollMessage();
-	qqBot.startKeepAlive();
+	
 	qqBot.messageHandle = registerMessageHandle();
-
+	qqBot.startPollMessage();
+	qqBot.scheduleHandle = registerScheduleHandle();
+	qqBot.startKeepAlive();
+			
 	chrome.runtime.onMessage.addListener(function(request, sender, senderResponse){
 		qqBot.changeSwitch();
 		console.log("QQ robot status: " + qqBot._switch);

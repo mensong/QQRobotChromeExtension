@@ -290,8 +290,37 @@ function myMessageHandle(bot, msg)
 		r(bot, msg);
 }
 
-//注册
+var scheduleDone = [];
+var onTimeAlarmMinutes = [0, 30];//整点报时的分钟
+function myScheduleHandle(bot)
+{
+	var targetInfo = bot.getCurrentChatTargetInfo();
+	console.info(targetInfo['title']);
+	if (targetInfo['title'] == "机器人小B交流群")
+	{
+		var now = new Date();
+		var hours = now.getHours();
+		var minutes = now.getMinutes();
+		if (onTimeAlarmMinutes.indexOf(minutes) >= 0)//检查分钟是否为某时刻
+		{
+			var key = targetInfo['title'] + ":" + hours;
+			if (scheduleDone.indexOf(key) < 0)
+			{
+				var txt = "整点报时：" + now;
+				bot.sendMessage(txt);
+				scheduleDone.push(key);
+			}
+		}
+	}
+}
+
+//注册消息接口句柄
 function registerMessageHandle()
 {
 	return myMessageHandle;
+}
+//注册时刻进度句柄
+function registerScheduleHandle()
+{
+	return myScheduleHandle;
 }
