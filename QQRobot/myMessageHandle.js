@@ -38,8 +38,8 @@ function tulingReply(bot, msg)
 //茉莉机器人回复
 //  官网：http://www.itpk.cn
 //  可以使用公共api，因此可以不指定apikey
-var itpkKey = "28f043e2501a28f1c9f54e85df430c3c";
-var itpSecretKey = "gergul";
+var itpkKey = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+var itpSecretKey = "XXXXXX";
 function isJSON(str) 
 {
     if (typeof str == 'string')
