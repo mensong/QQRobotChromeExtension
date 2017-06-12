@@ -35,7 +35,7 @@ A QQ robot chrome extension
 
 机器人命令：
 
-  发送：robot:help 消息给机器人就可以查询所有命令。
+  发送：:help 消息给机器人就可以查询所有命令。
 
 
 注意：
