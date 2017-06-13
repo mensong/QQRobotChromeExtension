@@ -306,9 +306,10 @@ function myScheduleHandle(bot)
 			var key = targetInfo['title'] + ":" + hours;
 			if (scheduleDone.indexOf(key) < 0)
 			{
-				var txt = "整点报时：" + now;
+				var txt = "整点报时：\n" + now;
 				bot.sendMessage(txt);
 				scheduleDone.push(key);
+				bot.makeSureDonotRefresh(60*1000);//此后持续1分钟不刷新，防止报时多次
 			}
 		}
 	}
