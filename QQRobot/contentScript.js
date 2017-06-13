@@ -175,6 +175,12 @@ function QQRobot()
 		
 	};
 	
+	//在此时间前不刷新页面
+	this.holdTimeLine = 0;
+	this.makeSureDonotRefresh = function(sustainSecond) {//持续时间单位为秒
+		this.holdTimeLine = new Date().getTime() + sustainSecond;
+	};
+	
 	//轮询消息
 	this.needRefresh = false;//需要刷新页面
 	this.lastMessageList = new Map();//历史纪录<"id", [lastList]>
@@ -216,6 +222,12 @@ function QQRobot()
 						0 == newCount &&  //没有新的消息
 						THIS.needRefresh)      //需要刷新
 					{
+						if (THIS.holdTimeLine != 0 && 
+							THIS.holdTimeLine >= new Date().getTime())//被阻止了刷新
+						{
+							return ;
+						}
+						
 						window.open(document.URL, "_self");
 						return ;
 					}
