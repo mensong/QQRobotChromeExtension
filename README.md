@@ -26,7 +26,8 @@ A QQ robot chrome extension
 
   1、图灵机器人部署
   
-     到www.tuling123.com 上申请一个你的机器人，创建机器人后会得到你的ApiKey，把这个ApiKey复制到myMessageHandle.js中对应的位置，重新载入插件即可生效。
+     到www.tuling123.com 上申请一个你的机器人，创建机器人后会得到你的ApiKey，
+     把这个ApiKey复制到myMessageHandle.js中对应的位置，重新载入插件即可生效。
   
   2、茉莉机器人部署
   
